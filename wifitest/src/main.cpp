@@ -8,8 +8,8 @@
 #include <Arduino.h>
 #include <Adafruit_MCP3008.h>
  
-const char* ssid = "Bruh";
-const char* password =  "10026992";
+const char* ssid = "ssid";
+const char* password =  "password";
  
 void WiFiEvent(WiFiEvent_t event)
 {
