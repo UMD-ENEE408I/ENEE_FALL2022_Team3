@@ -7,110 +7,55 @@
 #include <WiFiMulti.h>
 #include <Arduino.h>
 #include <Adafruit_MCP3008.h>
- 
-const char* ssid = "ssid";
-const char* password =  "password";
- 
-void WiFiEvent(WiFiEvent_t event)
-{
-    Serial.printf("[WiFi-event] event: %d\n", event);
+#include <WiFiUdp.h>
 
-    switch (event) {
-        case ARDUINO_EVENT_WIFI_READY: 
-            Serial.println("WiFi interface ready");
-            break;
-        case ARDUINO_EVENT_WIFI_SCAN_DONE:
-            Serial.println("Completed scan for access points");
-            break;
-        case ARDUINO_EVENT_WIFI_STA_START:
-            Serial.println("WiFi client started");
-            break;
-        case ARDUINO_EVENT_WIFI_STA_STOP:
-            Serial.println("WiFi clients stopped");
-            break;
-        case ARDUINO_EVENT_WIFI_STA_CONNECTED:
-            Serial.println("Connected to access point");
-            break;
-        case ARDUINO_EVENT_WIFI_STA_DISCONNECTED:
-            Serial.println("Disconnected from WiFi access point");
-            break;
-        case ARDUINO_EVENT_WIFI_STA_AUTHMODE_CHANGE:
-            Serial.println("Authentication mode of access point has changed");
-            break;
-        case ARDUINO_EVENT_WIFI_STA_GOT_IP:
-            Serial.print("Obtained IP address: ");
-            Serial.println(WiFi.localIP());
-            break;
-        case ARDUINO_EVENT_WIFI_STA_LOST_IP:
-            Serial.println("Lost IP address and IP address is reset to 0");
-            break;
-        case ARDUINO_EVENT_WPS_ER_SUCCESS:
-            Serial.println("WiFi Protected Setup (WPS): succeeded in enrollee mode");
-            break;
-        case ARDUINO_EVENT_WPS_ER_FAILED:
-            Serial.println("WiFi Protected Setup (WPS): failed in enrollee mode");
-            break;
-        case ARDUINO_EVENT_WPS_ER_TIMEOUT:
-            Serial.println("WiFi Protected Setup (WPS): timeout in enrollee mode");
-            break;
-        case ARDUINO_EVENT_WPS_ER_PIN:
-            Serial.println("WiFi Protected Setup (WPS): pin code in enrollee mode");
-            break;
-        case ARDUINO_EVENT_WIFI_AP_START:
-            Serial.println("WiFi access point started");
-            break;
-        case ARDUINO_EVENT_WIFI_AP_STOP:
-            Serial.println("WiFi access point  stopped");
-            break;
-        case ARDUINO_EVENT_WIFI_AP_STACONNECTED:
-            Serial.println("Client connected");
-            break;
-        case ARDUINO_EVENT_WIFI_AP_STADISCONNECTED:
-            Serial.println("Client disconnected");
-            break;
-        case ARDUINO_EVENT_WIFI_AP_STAIPASSIGNED:
-            Serial.println("Assigned IP address to client");
-            break;
-        case ARDUINO_EVENT_WIFI_AP_PROBEREQRECVED:
-            Serial.println("Received probe request");
-            break;
-        case ARDUINO_EVENT_WIFI_AP_GOT_IP6:
-            Serial.println("AP IPv6 is preferred");
-            break;
-        case ARDUINO_EVENT_WIFI_STA_GOT_IP6:
-            Serial.println("STA IPv6 is preferred");
-            break;
-        case ARDUINO_EVENT_ETH_GOT_IP6:
-            Serial.println("Ethernet IPv6 is preferred");
-            break;
-        case ARDUINO_EVENT_ETH_START:
-            Serial.println("Ethernet started");
-            break;
-        case ARDUINO_EVENT_ETH_STOP:
-            Serial.println("Ethernet stopped");
-            break;
-        case ARDUINO_EVENT_ETH_CONNECTED:
-            Serial.println("Ethernet connected");
-            break;
-        case ARDUINO_EVENT_ETH_DISCONNECTED:
-            Serial.println("Ethernet disconnected");
-            break;
-        case ARDUINO_EVENT_ETH_GOT_IP:
-            Serial.println("Obtained IP address");
-            break;
-        default: break;
-    }}
+const char* ssid = "Test";
+const char* password =  "OPkl!234";
+const char * udpAddress = "10.0.2.255";
+const int udpPort = 3333;
+WiFiUDP udp;
+//Are we currently connected?
+boolean connected = false;
+void connectToWiFi(const char * ssid, const char * pwd);
+void WiFiEvent(WiFiEvent_t event) ;
 
-void WiFiGotIP(WiFiEvent_t event, WiFiEventInfo_t info)
-{
-    Serial.println("WiFi connected");
-    Serial.println("IP address: ");
-    Serial.println(IPAddress(info.got_ip.ip_info.ip.addr));
+void connectToWiFi(const char * ssid, const char * pwd){
+  Serial.println("Connecting to WiFi network: " + String(ssid));
+
+  // delete old config
+  WiFi.disconnect(true);
+  //register event handler
+  WiFi.onEvent(WiFiEvent);
+  
+  //Initiate connection
+  WiFi.begin(ssid, pwd);
+
+  Serial.println("Waiting for WIFI connection...");
+}
+
+//wifi event handler
+void WiFiEvent(WiFiEvent_t event){
+    switch(event) {
+      case ARDUINO_EVENT_WIFI_STA_GOT_IP:
+          //When connected set 
+          Serial.print("WiFi connected! IP address: ");
+          Serial.println(WiFi.localIP());  
+          //initializes the UDP state
+          //This initializes the transfer buffer
+          udp.begin(WiFi.localIP(),udpPort);
+          connected = true;
+          break;
+      case ARDUINO_EVENT_WIFI_STA_DISCONNECTED:
+          Serial.println("WiFi lost connection");
+          connected = false;
+          break;
+      default: break;
+    }
 }
 
 void setup()
 {
-      // Stop the right motor by setting pin 14 low
+  // Stop the right motor by setting pin 14 low
   // this pin floats high or is pulled
   // high during the bootloader phase for some reason
   pinMode(14, OUTPUT);
@@ -121,30 +66,19 @@ void setup()
 
     // delete old config
     WiFi.disconnect(true);
-
-    delay(1000);
-
-    // Examples of different ways to register wifi events
-    WiFi.onEvent(WiFiEvent);
-    WiFi.onEvent(WiFiGotIP, WiFiEvent_t::ARDUINO_EVENT_WIFI_STA_GOT_IP);
-    WiFiEventId_t eventID = WiFi.onEvent([](WiFiEvent_t event, WiFiEventInfo_t info){
-        Serial.print("WiFi lost connection. Reason: ");
-        Serial.println(info.wifi_sta_disconnected.reason);
-    }, WiFiEvent_t::ARDUINO_EVENT_WIFI_STA_DISCONNECTED);
-
-    // Remove WiFi event
-    Serial.print("WiFi Event ID: ");
-    Serial.println(eventID);
-    // WiFi.removeEvent(eventID);
-
-    WiFi.begin(ssid, password);
-
-    Serial.println();
-    Serial.println();
-    Serial.println("Wait for WiFi... ");
+  //Connect to the WiFi network
+  connectToWiFi(ssid, password);
 }
 
 void loop()
 {
-    delay(1000);
+   //only send data when connected
+  if(connected){
+    //Send a packet
+    udp.beginPacket(udpAddress,udpPort);
+    udp.printf("Seconds since boot: %lu", millis()/1000);
+    udp.endPacket();
+  }
+  //Wait for 1 second
+  delay(1000);
 }
