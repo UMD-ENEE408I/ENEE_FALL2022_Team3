@@ -11,5 +11,5 @@ void setup() {
 }
 
 void loop() {
-  defaultLoop();  //TrajectoryTracking loop, should later be modified to change loop shape + provided device info for jetson
+  defaultLoop();  //TrajectoryTracking loop, should later be modified to change loop shape + provided info to jetson
 }
