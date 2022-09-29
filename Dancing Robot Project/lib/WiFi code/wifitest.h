@@ -142,8 +142,3 @@ void setWifi(const char* ssid, const char* password)
     Serial.println();
     Serial.println("Wait for WiFi... ");
 }
-
-void loop()
-{
-    delay(1000);
-}

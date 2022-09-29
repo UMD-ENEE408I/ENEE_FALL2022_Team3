@@ -179,7 +179,7 @@ void setDefault_Trajectory() {
   Serial.println("Starting!");
 }
 
-void loop() {
+void defaultLoop() {
   // Create the encoder objects after the motor has
   // stopped, else some sort exception is triggered
   Encoder enc1(M1_ENC_A, M1_ENC_B);

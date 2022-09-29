@@ -6,11 +6,10 @@ const char* ssid = "ssid";
 const char* password =  "password";
 
 void setup() {
-  setWifi(ssid,password);  //runs wifitest setup
-  setDefault_Trajectory(); //runs the TrajectoryTracking setup
+  setWifi(ssid,password);  //wifitest setup
+  setDefault_Trajectory(); //TrajectoryTracking setup
 }
 
 void loop() {
-  // put your main code here, to run repeatedly:
-  delay(1000);
+  defaultLoop();  //TrajectoryTracking loop, should later be modified to change loop shape + provided device info for jetson
 }
