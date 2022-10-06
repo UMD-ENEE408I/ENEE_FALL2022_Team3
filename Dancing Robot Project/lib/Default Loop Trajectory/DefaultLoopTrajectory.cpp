@@ -136,11 +136,10 @@ void setDefault_Trajectory() {
   Serial.println("Starting!");
 }
 
-void defaultLoop() {
+float* defaultLoop(Encoder& enc1, Encoder& enc2) {
   // Create the encoder objects after the motor has
   // stopped, else some sort exception is triggered
-  Encoder enc1(M1_ENC_A, M1_ENC_B);
-  Encoder enc2(M2_ENC_A, M2_ENC_B);
+  
 
   // Loop period
   int target_period_ms = 2; // Loop takes about 3 ms so a delay of 2 gives 200 Hz or 5ms
@@ -295,5 +294,9 @@ void defaultLoop() {
 
     // Serial.println();
     delay(target_period_ms);
+    static float r[2];
+    r[0] = requested_v;
+    r[1] = requested_w;
+    return r;
   }
 }

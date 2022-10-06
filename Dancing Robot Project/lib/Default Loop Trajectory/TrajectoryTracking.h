@@ -58,4 +58,4 @@ void leminscate_of_bernoulli(float t, float a, float& x, float& y);
 // assumes norms of these quantities are precomputed
 float signed_angle(float x0, float y0, float n0, float x1, float y1, float n1);
 void setDefault_Trajectory();
-void defaultLoop();
+float* defaultLoop(Encoder& enc1, Encoder& enc2);//[0] is v, [1] is w
