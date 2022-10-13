@@ -95,11 +95,11 @@ float update_pid(float dt, float kp, float ki, float kd,
 
 // a smooth and interesting trajectory
 // https://en.wikipedia.org/wiki/Lemniscate_of_Bernoulli
-void leminscate_of_bernoulli(float t, float a, float& x, float& y) {
-  float sin_t = sin(t);
-  float den = 1 + sin_t * sin_t;
-  x = a * cos(t) / den;
-  y = a * sin(t) * cos(t) / den;
+void CIRCLE(float t, float a, float& x, float& y) {
+  //float sin_t = sin(t);
+  //float den = 1 + sin_t * sin_t;
+  x = a * cos(t);
+  y = a * sin(t);
 }
 
 // Signed angle from (x0, y0) to (x1, y1)
@@ -171,16 +171,15 @@ float* defaultLoop(Encoder& enc1, Encoder& enc2, int check) {
   static float start_t;
   static float last_t;
   if (check == 0) {
-    Serial.println("Jeff");
   // Loop period
     target_period_ms = 2; // Loop takes about 3 ms so a delay of 2 gives 200 Hz or 5ms
 
   // States used to calculate target velocity and heading
     leminscate_a = 0.5; // Radius
     leminscate_t_scale = 2.0; // speedup factor
-    leminscate_of_bernoulli(0.0, leminscate_a, x0, y0);
+    CIRCLE(0.0, leminscate_a, x0, y0);
     
-    leminscate_of_bernoulli(-leminscate_t_scale * target_period_ms / 1000.0, leminscate_a, last_x, last_y);
+    CIRCLE(-leminscate_t_scale * target_period_ms / 1000.0, leminscate_a, last_x, last_y);
     last_dx = (x0 - last_x) / ((float)target_period_ms / 1000.0);
     last_dy = (y0 - last_y) / ((float)target_period_ms / 1000.0);
     last_target_v = sqrtf(last_dx * last_dx + last_dy * last_dy);
@@ -222,7 +221,6 @@ float* defaultLoop(Encoder& enc1, Encoder& enc2, int check) {
     start_t = (float)micros() / 1000000.0;
     last_t = -target_period_ms / 1000.0; // Offset by expected looptime to avoid divide by zero
   }
-  while (true) {
     // Get the time elapsed
     float t = ((float)micros()) / 1000000.0 - start_t;
     float dt = ((float)(t - last_t)); // Calculate time since last update
@@ -258,7 +256,7 @@ float* defaultLoop(Encoder& enc1, Encoder& enc2, int check) {
     // Calculate target forward velocity and target heading to track the leminscate trajectory
     // of 0.5 meter radius
     float x, y;
-    leminscate_of_bernoulli(leminscate_t_scale * t, leminscate_a, x, y);
+    CIRCLE(leminscate_t_scale * t, leminscate_a, x, y);
 
     // Serial.print(" x "); Serial.print(x);
     // Serial.print(" y "); Serial.print(y);
@@ -318,16 +316,15 @@ float* defaultLoop(Encoder& enc1, Encoder& enc2, int check) {
     left_voltage = right_voltage + kf_right * target_v_right;
     float right_pwm = (float)MAX_PWM_VALUE * (right_voltage / 8.0); // TODO use actual battery voltage
 
-    // Serial.print(" l voltage " ); Serial.print(left_voltage);
-    // Serial.print(" r voltage " ); Serial.print(right_voltage);
+  // Serial.print(" l voltage " ); Serial.print(left_voltage);
+  // Serial.print(" r voltage " ); Serial.print(right_voltage);
 
-    set_motors_pwm(left_pwm, right_pwm);
+  set_motors_pwm(left_pwm, right_pwm);
 
-    // Serial.println();
-    delay(target_period_ms);
-    static float r[2];
-    r[0] = requested_v;
-    r[1] = requested_w;
-    return r;
-  }
+  // Serial.println();
+  delay(target_period_ms);
+  static float r[2];
+  r[0] = requested_v;
+  r[1] = requested_w;
+  return r;
 }

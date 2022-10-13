@@ -53,7 +53,7 @@ float update_pid(float dt, float kp, float ki, float kd,
                  float x_d, float x,
                  float& int_e, float abs_int_e_max, // last_x and int_e are updated by this function
                  float& last_x);
-void leminscate_of_bernoulli(float t, float a, float& x, float& y);
+void CIRCLE(float t, float a, float& x, float& y);
 // Signed angle from (x0, y0) to (x1, y1)
 // assumes norms of these quantities are precomputed
 float signed_angle(float x0, float y0, float n0, float x1, float y1, float n1);
