@@ -136,61 +136,92 @@ void setDefault_Trajectory() {
   Serial.println("Starting!");
 }
 
-float* defaultLoop(Encoder& enc1, Encoder& enc2) {
+float* defaultLoop(Encoder& enc1, Encoder& enc2, int check) {
   // Create the encoder objects after the motor has
   // stopped, else some sort exception is triggered
-  
+  static int target_period_ms;
+  static float leminscate_a;
+  static float leminscate_t_scale;
+  static float x0, y0;//if something goes wrong, might have to do with x0y0 and last_xlast_y
+  static float last_x, last_y;
+  static float last_dx;
+  static float last_dy;
+  static float last_target_v;
+  static float target_theta;
+  static float kp_left;
+  static float ki_left;
+  static float kd_left;
+  static float kf_left;
+  static float target_pos_left;
+  static float last_pos_left;
+  static float integral_error_pos_left;
+  static float max_integral_error_pos_left; // Max effect is the nominal battery voltage
 
+  static float kp_right;
+  static float ki_right;
+  static float kd_right;
+  static float kf_right;
+  static float last_pos_right;
+  static float target_pos_right;
+  static float integral_error_pos_right;
+  static float max_integral_error_pos_right; // Max effect is the nominal battery voltage
+  static float theta;
+  static float bias_omega;
+  static float ktheta;
+  static float start_t;
+  static float last_t;
+  if (check == 0) {
+    Serial.println("Jeff");
   // Loop period
-  int target_period_ms = 2; // Loop takes about 3 ms so a delay of 2 gives 200 Hz or 5ms
+    target_period_ms = 2; // Loop takes about 3 ms so a delay of 2 gives 200 Hz or 5ms
 
   // States used to calculate target velocity and heading
-  float leminscate_a = 0.5; // Radius
-  float leminscate_t_scale = 2.0; // speedup factor
-  float x0, y0;
-  leminscate_of_bernoulli(0.0, leminscate_a, x0, y0);
-  float last_x, last_y;
-  leminscate_of_bernoulli(-leminscate_t_scale * target_period_ms / 1000.0, leminscate_a, last_x, last_y);
-  float last_dx = (x0 - last_x) / ((float)target_period_ms / 1000.0);
-  float last_dy = (y0 - last_y) / ((float)target_period_ms / 1000.0);
-  float last_target_v = sqrtf(last_dx * last_dx + last_dy * last_dy);
-  float target_theta = 0.0; // This is an integrated quantity
+    leminscate_a = 0.5; // Radius
+    leminscate_t_scale = 2.0; // speedup factor
+    leminscate_of_bernoulli(0.0, leminscate_a, x0, y0);
+    
+    leminscate_of_bernoulli(-leminscate_t_scale * target_period_ms / 1000.0, leminscate_a, last_x, last_y);
+    last_dx = (x0 - last_x) / ((float)target_period_ms / 1000.0);
+    last_dy = (y0 - last_y) / ((float)target_period_ms / 1000.0);
+    last_target_v = sqrtf(last_dx * last_dx + last_dy * last_dy);
+    target_theta = 0.0; // This is an integrated quantity
 
   // Motors are controlled by a position PID
   // with inputs interpreted in meters and outputs interpreted in volts
   // integral term has "anti-windup"
   // derivative term uses to derivative of process variable (wheel position)
   // instead of derivative of error in order to avoid "derivative kick"
-  float kp_left = 200.0;
-  float ki_left = 20.0;
-  float kd_left = 20.0;
-  float kf_left = 10.0;
-  float target_pos_left  = 0.0;
-  float last_pos_left = 0.0;
-  float integral_error_pos_left = 0.0;
-  float max_integral_error_pos_left = 1.0 * 8.0 / ki_left; // Max effect is the nominal battery voltage
+    kp_left = 200.0;
+    ki_left = 20.0;
+    kd_left = 20.0;
+    kf_left = 10.0;
+    target_pos_left  = 0.0;
+    last_pos_left = 0.0;
+    integral_error_pos_left = 0.0;
+    max_integral_error_pos_left = 1.0 * 8.0 / ki_left; // Max effect is the nominal battery voltage
 
-  float kp_right = 200.0;
-  float ki_right = 20.0;
-  float kd_right = 20.0;
-  float kf_right = 10.0;
-  float last_pos_right = 0.0;
-  float target_pos_right = 0.0;
-  float integral_error_pos_right = 0.0;
-  float max_integral_error_pos_right = 1.0 * 8.0 / ki_right; // Max effect is the nominal battery voltage
+    kp_right = 200.0;
+    ki_right = 20.0;
+    kd_right = 20.0;
+    kf_right = 10.0;
+    last_pos_right = 0.0;
+    target_pos_right = 0.0;
+    integral_error_pos_right = 0.0;
+    max_integral_error_pos_right = 1.0 * 8.0 / ki_right; // Max effect is the nominal battery voltage
 
   // IMU Orientation variables
-  float theta = 0.0;
-  float bias_omega;
+    theta = 0.0;
+    //bias_omega;
   // Gain applied to heading error when offseting target motor velocities
   // currently set to 360 deg/s compensation for 90 degrees of error
-  float ktheta = (2 * 3.14159) / (90.0 * 3.14159 / 180.0);
-  est_imu_bias(bias_omega, 500);// Could be expanded for more quantities
+    ktheta = (2 * 3.14159) / (90.0 * 3.14159 / 180.0);
+    est_imu_bias(bias_omega, 500);// Could be expanded for more quantities
 
   // The real "loop()"
   // time starts from 0
-  float start_t = (float)micros() / 1000000.0;
-  float last_t = -target_period_ms / 1000.0; // Offset by expected looptime to avoid divide by zero
+    start_t = (float)micros() / 1000000.0;
+    last_t = -target_period_ms / 1000.0; // Offset by expected looptime to avoid divide by zero
+  }
   while (true) {
     // Get the time elapsed
     float t = ((float)micros()) / 1000000.0 - start_t;

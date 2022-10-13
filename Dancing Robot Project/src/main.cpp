@@ -14,11 +14,13 @@ void setup() {
 void loop() {
   Encoder enc1(M1_ENC_A, M1_ENC_B);
   Encoder enc2(M2_ENC_A, M2_ENC_B);
+  int start = 0;
   while(true) {
   float* speedangle;//2 variable pointer[0] is v, [1] is w
-  speedangle = defaultLoop(enc1, enc2);  //TrajectoryTracking loop, should later be modified to change loop shape + provided info to jetson
+  speedangle = defaultLoop(enc1, enc2, start);  //TrajectoryTracking loop, should later be modified to change loop shape
   Serial.print("\tvelocity: "); Serial.print(speedangle[0]); Serial.print("\t"); Serial.print("angle: ");Serial.print(speedangle[1]); 
   Serial.print("\n");
+  start = 1;
   }
   
 }
