@@ -54,8 +54,10 @@ float update_pid(float dt, float kp, float ki, float kd,
                  float& int_e, float abs_int_e_max, // last_x and int_e are updated by this function
                  float& last_x);
 void CIRCLE(float t, float a, float& x, float& y);
+void BACKCIRCLE(float t, float a, float& x, float& y);
+void SPIRAL(float t, float a, float& x, float& y);
 // Signed angle from (x0, y0) to (x1, y1)
 // assumes norms of these quantities are precomputed
 float signed_angle(float x0, float y0, float n0, float x1, float y1, float n1);
 void setDefault_Trajectory();
-float* defaultLoop(Encoder& enc1, Encoder& enc2, int check);//[0] is v, [1] is w
+float* defaultLoop(Encoder& enc1, Encoder& enc2, int check, int mode);//[0] is v, [1] is w

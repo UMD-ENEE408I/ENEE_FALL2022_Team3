@@ -102,6 +102,20 @@ void CIRCLE(float t, float a, float& x, float& y) {
   y = a * sin(t);
 }
 
+void BACKCIRCLE(float t, float a, float& x, float& y) {
+  //float sin_t = sin(t);
+  //float den = 1 + sin_t * sin_t;
+  x = a * cos(t);
+  y = -a * sin(t);
+}
+
+void SPIRAL(float t, float a, float& x, float& y) {
+  //float sin_t = sin(t);
+  //float den = 1 + sin_t * sin_t;
+  x = a * exp(t/20)*cos(t);
+  y = -a * exp(t/20)*sin(t);
+}
+
 // Signed angle from (x0, y0) to (x1, y1)
 // assumes norms of these quantities are precomputed
 float signed_angle(float x0, float y0, float n0, float x1, float y1, float n1) {
@@ -136,7 +150,7 @@ void setDefault_Trajectory() {
   Serial.println("Starting!");
 }
 
-float* defaultLoop(Encoder& enc1, Encoder& enc2, int check) {
+float* defaultLoop(Encoder& enc1, Encoder& enc2, int check, int mode) {
   // Create the encoder objects after the motor has
   // stopped, else some sort exception is triggered
   static int target_period_ms;
@@ -177,9 +191,22 @@ float* defaultLoop(Encoder& enc1, Encoder& enc2, int check) {
   // States used to calculate target velocity and heading
     leminscate_a = 0.5; // Radius
     leminscate_t_scale = 2.0; // speedup factor
-    CIRCLE(0.0, leminscate_a, x0, y0);
+
+    switch(mode) {
+   case 0  :
+      CIRCLE(0.0, leminscate_a, x0, y0);
+      CIRCLE(-leminscate_t_scale * target_period_ms / 1000.0, leminscate_a, last_x, last_y);
+      break;
+   case 1  :
+      BACKCIRCLE(0.0, leminscate_a, x0, y0);
+      BACKCIRCLE(-leminscate_t_scale * target_period_ms / 1000.0, leminscate_a, last_x, last_y);
+      break;
+   case 2  :
+      SPIRAL(0.0, leminscate_a, x0, y0);
+      SPIRAL(-leminscate_t_scale * target_period_ms / 1000.0, leminscate_a, last_x, last_y);
+      break;
+}
     
-    CIRCLE(-leminscate_t_scale * target_period_ms / 1000.0, leminscate_a, last_x, last_y);
     last_dx = (x0 - last_x) / ((float)target_period_ms / 1000.0);
     last_dy = (y0 - last_y) / ((float)target_period_ms / 1000.0);
     last_target_v = sqrtf(last_dx * last_dx + last_dy * last_dy);
