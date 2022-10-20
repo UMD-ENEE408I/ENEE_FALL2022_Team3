@@ -6,8 +6,8 @@
 
 const char* ssid;
 const char* password;
-const char * udpAddress;
-const int udpPort;
+const char * udpAddress = "192.168.26.101";
+const int udpPort = 3333;
 WiFiUDP udp;
 
 //struct for udp packets

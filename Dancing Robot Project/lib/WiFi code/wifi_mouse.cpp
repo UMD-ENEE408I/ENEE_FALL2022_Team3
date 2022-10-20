@@ -1,25 +1,7 @@
 #include <wifi_mouse.h>
 
-WiFiUDP udp;
 boolean connected = false;
 
-
-//struct for udp packets
-struct mouse{
-  float heading_req;
-  float velocity_req;
-  float heading_meas;
-  float velocity_meas;
-  int mouse_state;
-  int move_req;
-  float battery_voltage;
-} mouse;
-
-struct brain{
-  float heading_req;
-  float velocity_req;
-  int move_req;
-} brain;
 
 void connectToWiFi(const char * ssid, const char * pwd){
   Serial.println("Connecting to WiFi network: " + String(ssid));
