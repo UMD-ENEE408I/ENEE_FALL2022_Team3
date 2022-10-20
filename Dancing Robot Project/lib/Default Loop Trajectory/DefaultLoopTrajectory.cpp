@@ -325,7 +325,28 @@ float* defaultLoop(Encoder& enc1, Encoder& enc2, int check, int mode) {
     // Calculate target forward velocity and target heading to track the leminscate trajectory
     // of 0.5 meter radius
     float x, y;
-    CIRCLE(leminscate_t_scale * t, leminscate_a, x, y);
+  switch(mode) {
+   case 0  :
+      STOP(x,y);
+      break;
+   case 1  :
+      CIRCLE(leminscate_t_scale * t, leminscate_a, x, y);
+      break;
+   case 2  :
+      BACKCIRCLE(leminscate_t_scale * t, leminscate_a, x, y);
+      break;
+   case 3  :
+      SPIRAL(leminscate_t_scale * t, leminscate_a, x, y);
+   case 4  :
+      ZIGZAG(leminscate_t_scale * t, leminscate_a, x, y);
+      break;
+   case 5  :
+      DIAMOND(leminscate_t_scale * t, leminscate_a, x, y);
+      break;
+   case 6  :
+      STAR(leminscate_t_scale * t, leminscate_a, x, y);
+      break;
+}
 
     // Serial.print(" x "); Serial.print(x);
     // Serial.print(" y "); Serial.print(y);
