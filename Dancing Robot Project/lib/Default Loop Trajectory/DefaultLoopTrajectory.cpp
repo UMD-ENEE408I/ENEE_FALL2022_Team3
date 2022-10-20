@@ -220,32 +220,32 @@ float* defaultLoop(Encoder& enc1, Encoder& enc2, int check, int mode) {
 
     switch(mode) {
    case 0  :
+      STOP(x0, y0);
+      STOP(last_x, last_y);
+      break;
+   case 1  :
       CIRCLE(0.0, leminscate_a, x0, y0);
       CIRCLE(-leminscate_t_scale * target_period_ms / 1000.0, leminscate_a, last_x, last_y);
       break;
-   case 1  :
+   case 2  :
       BACKCIRCLE(0.0, leminscate_a, x0, y0);
       BACKCIRCLE(-leminscate_t_scale * target_period_ms / 1000.0, leminscate_a, last_x, last_y);
       break;
-   case 2  :
+   case 3  :
       SPIRAL(0.0, leminscate_a, x0, y0);
       SPIRAL(-leminscate_t_scale * target_period_ms / 1000.0, leminscate_a, last_x, last_y);
       break;
-   case 3  :
+   case 4  :
       ZIGZAG(0.0, leminscate_a, x0, y0);
       ZIGZAG(-leminscate_t_scale * target_period_ms / 1000.0, leminscate_a, last_x, last_y);
       break;
-   case 4  :
+   case 5  :
       DIAMOND(0.0, leminscate_a, x0, y0);
       DIAMOND(-leminscate_t_scale * target_period_ms / 1000.0, leminscate_a, last_x, last_y);
       break;
-   case 5  :
+   case 6  :
       STAR(0.0, leminscate_a, x0, y0);
       STAR(-leminscate_t_scale * target_period_ms / 1000.0, leminscate_a, last_x, last_y);
-      break;
-   case 6  :
-      STOP(x0, y0);
-      STOP(last_x, last_y);
       break;
 }
     
