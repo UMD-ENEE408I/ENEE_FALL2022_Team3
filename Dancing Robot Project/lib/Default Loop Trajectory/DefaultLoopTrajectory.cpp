@@ -116,6 +116,32 @@ void SPIRAL(float t, float a, float& x, float& y) {
   y = -a * exp(t/20)*sin(t);
 }
 
+void ZIGZAG(float t, float a, float& x, float& y) {
+  //float sin_t = sin(t);
+  //float den = 1 + sin_t * sin_t;
+  x = a * cos(t);
+  y = -t;
+}
+
+void DIAMOND(float t, float a, float& x, float& y) {
+  //float sin_t = sin(t);
+  //float den = 1 + sin_t * sin_t;
+  x = a * pow(cos(t),3);
+  y = -a * pow(sin(t),3);
+}
+
+void STAR(float t, float a, float& x, float& y) {
+  //float sin_t = sin(t);
+  //float den = 1 + sin_t * sin_t;
+  x = -(abs(a)+4)*sin(2*t) - a*sin(3*t);
+  y = (abs(a)+4)*cos(2*t) - a*cos(3*t);
+}
+
+void STOP(float& x, float& y) {
+  x = 0;
+  y = 0;
+}
+
 // Signed angle from (x0, y0) to (x1, y1)
 // assumes norms of these quantities are precomputed
 float signed_angle(float x0, float y0, float n0, float x1, float y1, float n1) {
@@ -204,6 +230,22 @@ float* defaultLoop(Encoder& enc1, Encoder& enc2, int check, int mode) {
    case 2  :
       SPIRAL(0.0, leminscate_a, x0, y0);
       SPIRAL(-leminscate_t_scale * target_period_ms / 1000.0, leminscate_a, last_x, last_y);
+      break;
+   case 3  :
+      ZIGZAG(0.0, leminscate_a, x0, y0);
+      ZIGZAG(-leminscate_t_scale * target_period_ms / 1000.0, leminscate_a, last_x, last_y);
+      break;
+   case 4  :
+      DIAMOND(0.0, leminscate_a, x0, y0);
+      DIAMOND(-leminscate_t_scale * target_period_ms / 1000.0, leminscate_a, last_x, last_y);
+      break;
+   case 5  :
+      STAR(0.0, leminscate_a, x0, y0);
+      STAR(-leminscate_t_scale * target_period_ms / 1000.0, leminscate_a, last_x, last_y);
+      break;
+   case 6  :
+      STOP(x0, y0);
+      STOP(last_x, last_y);
       break;
 }
     

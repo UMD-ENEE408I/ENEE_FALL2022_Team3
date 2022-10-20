@@ -56,6 +56,10 @@ float update_pid(float dt, float kp, float ki, float kd,
 void CIRCLE(float t, float a, float& x, float& y);
 void BACKCIRCLE(float t, float a, float& x, float& y);
 void SPIRAL(float t, float a, float& x, float& y);
+void ZIGZAG(float t, float a, float& x, float& y);
+void DIAMOND(float t, float a, float& x, float& y);
+void STAR(float t, float a, float& x, float& y);
+void STOP(float& x, float& y);
 // Signed angle from (x0, y0) to (x1, y1)
 // assumes norms of these quantities are precomputed
 float signed_angle(float x0, float y0, float n0, float x1, float y1, float n1);
