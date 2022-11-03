@@ -60,8 +60,10 @@ void ZIGZAG(float t, float a, float& x, float& y);
 void DIAMOND(float t, float a, float& x, float& y);
 void STAR(float t, float a, float& x, float& y);
 void STOP(float& x, float& y);
+void LINE(float& x, float& y, float& newx, float& newy);
 // Signed angle from (x0, y0) to (x1, y1)
 // assumes norms of these quantities are precomputed
 float signed_angle(float x0, float y0, float n0, float x1, float y1, float n1);
 void setDefault_Trajectory();
-float* defaultLoop(Encoder& enc1, Encoder& enc2, int check, int mode, float posx, float posy);//[0] is v, [1] is w
+float* defaultLoop(Encoder& enc1, Encoder& enc2, int check, int mode, float posx, float posy, float newx, float newy);
+//[0] is v, [1] is w

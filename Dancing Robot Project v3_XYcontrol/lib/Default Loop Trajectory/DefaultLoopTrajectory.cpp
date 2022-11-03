@@ -142,6 +142,11 @@ void STOP(float& x, float& y) {
   y = y;
 }
 
+void LINE(float& x, float& y, float& newx, float& newy) {
+  x = newx;
+  y = newy;
+}
+
 // Signed angle from (x0, y0) to (x1, y1)
 // assumes norms of these quantities are precomputed
 float signed_angle(float x0, float y0, float n0, float x1, float y1, float n1) {
@@ -176,7 +181,7 @@ void setDefault_Trajectory() {
   Serial.println("Starting!");
 }
 
-float* defaultLoop(Encoder& enc1, Encoder& enc2, int check, int mode, float posx, float posy) {
+float* defaultLoop(Encoder& enc1, Encoder& enc2, int check, int mode, float posx, float posy, float newx, float newy) {
   // Create the encoder objects after the motor has
   // stopped, else some sort exception is triggered
   static int target_period_ms;
@@ -216,6 +221,7 @@ float* defaultLoop(Encoder& enc1, Encoder& enc2, int check, int mode, float posx
 
   static float integral_error_pos_y;      //for new XY control PID
   static float max_integral_error_pos_y;  //for new XY control PID
+  static float target_v = 0;
 
   if (check == 0) {
   // Loop period
@@ -254,6 +260,9 @@ float* defaultLoop(Encoder& enc1, Encoder& enc2, int check, int mode, float posx
       STAR(0.0, leminscate_a, x0, y0);
       STAR(-leminscate_t_scale * target_period_ms / 1000.0, leminscate_a, last_x, last_y);
       break;
+    case 7 :
+      LINE(x0,y0,newx, newy);
+      LINE(last_x,last_y,newx,newy);
 }
     
     last_dx = (x0 - last_x) / ((float)target_period_ms / 1000.0);
@@ -346,6 +355,9 @@ float* defaultLoop(Encoder& enc1, Encoder& enc2, int check, int mode, float posx
    case 6  :
       STAR(leminscate_t_scale * t, leminscate_a, x, y);
       break;
+    case 7 :
+      LINE(x,y,newx,newy);
+      break;
 }        
 
     //accelerations for new XY control
@@ -357,12 +369,12 @@ float* defaultLoop(Encoder& enc1, Encoder& enc2, int check, int mode, float posx
     
     float dx = (x - last_x) / dt;
     float dy = (y - last_y) / dt;
-    float target_v = sqrtf(dx * dx + dy * dy); // forward velocity
+    
 
     //Feedback linearization for new XY control
     float target_omega = (-1/target_v)*(sin(theta)*ax - cos(theta)*ay);
     float dv = (cos(theta)*ax - sin(theta)*ay);
-
+    target_v = target_v + dv * dt;
 
     // Compute the change in heading using the normalized dot product between the current and last velocity vector
     // using this method instead of atan2 allows easy smooth handling of angles outsides of -pi / pi at the cost of

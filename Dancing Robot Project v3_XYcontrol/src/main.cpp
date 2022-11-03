@@ -28,6 +28,8 @@ void loop() {
   int last_mode = 0;
   float x = 0.0;  //purely temporary
   float y = 0.0;  //for testing x/y position additions
+  float newx = 1.0;
+  float newy = 1.0;
   //stays here after initial
   while(true) {
   //rx message from server
@@ -39,7 +41,7 @@ void loop() {
   }
 
   float* speedangle;//2 variable pointer[0] is v, [1] is w
-  speedangle = defaultLoop(enc1, enc2, start, brain1.move_req, x, y);  
+  speedangle = defaultLoop(enc1, enc2, start, brain1.move_req, x, y, newx, newy);  
   start = 1;
   mouse1.heading_meas = speedangle[1];
   mouse1.velocity_meas = speedangle[0];
