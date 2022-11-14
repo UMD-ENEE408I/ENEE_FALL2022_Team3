@@ -1,7 +1,7 @@
 import socket
 import time
 import struct
-
+import cam_loc.py
 
 HEADERSIZE = 10 
 
@@ -97,4 +97,9 @@ while(True):
     if mouse_3[1] != 0 :
         UDPServerSocket.sendto(coord_struct, mouse_3[1])
 
+    #image section
+    vid = cv2.VideoCapture(0) #cam feed into jetson
+    ret, frame = vid.read()
+    image = frame
+    cam_loc.read_tag(image)
     
