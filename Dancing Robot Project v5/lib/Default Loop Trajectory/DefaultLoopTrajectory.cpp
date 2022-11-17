@@ -287,9 +287,6 @@ float* defaultLoop(Encoder& enc1, Encoder& enc2, int check, int mode, float posx
     last_dy = (y0 - last_y) / ((float)target_period_ms / 1000.0);
     last_target_v = sqrtf(last_dx * last_dx + last_dy * last_dy);
     target_v = 0.55704230082;
-    if (mode == 0)  {
-      target_v = 0.0;
-    }
     target_theta = 0.0; // This is an integrated quantity
 
   // Motors are controlled by a position PID
@@ -405,9 +402,9 @@ float* defaultLoop(Encoder& enc1, Encoder& enc2, int check, int mode, float posx
     //Feedback linearization for new XY control
     float dv = (cos(target_theta)*ax + sin(target_theta)*ay); //might want to swap target_theta to theta and target_v to v_measured
     target_v = target_v + dv * dt;
-    //if (target_v < 0.0) {
-      //target_v = 0.0;
-    //}
+    if (target_v == 0.0) {
+      target_v = 0.0000001;
+    }
     if (target_v > 2)  {
       target_v = 2;
     }
@@ -423,6 +420,9 @@ float* defaultLoop(Encoder& enc1, Encoder& enc2, int check, int mode, float posx
     Serial.print(target_omega);
     Serial.println();
 
+    if (mode == 0) {
+        target_v = 0.0;
+    }
     // Compute the change in heading using the normalized dot product between the current and last velocity vector
     // using this method instead of atan2 allows easy smooth handling of angles outsides of -pi / pi at the cost of
     // a slow drift defined by numerical precision
