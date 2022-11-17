@@ -98,31 +98,29 @@ float update_pid(float dt, float kp, float ki, float kd,
 void CIRCLE(float t, float a, float& x, float& y, float &axff, float &ayff) {
   //float sin_t = sin(t);
   //float den = 1 + sin_t * sin_t;
-  x = a*(1 - sin(t));
-  y = -a * cos(t);
+  x = a * cos(t);
+  y = a * sin(t);
   //set axff and ayff to the double derivatives of the positional functions
-  axff = -axff*axff*a*sin(t);
-  ayff = ayff*ayff*a*cos(t);
+  axff = -axff*axff*a*cos(t);
+  ayff = -ayff*ayff*a*sin(t);
 }
 
 void BACKCIRCLE(float t, float a, float& x, float& y, float &axff, float &ayff) {
   //float sin_t = sin(t);
   //float den = 1 + sin_t * sin_t;
-  x = a*(1 - sin(t));
-  y = a * cos(t);
-  //set axff and ayff to the double derivatives of the positional functions
-  axff = -axff*axff*a*sin(t);
-  ayff = -ayff*ayff*a*cos(t);
+  x = a * cos(t);
+  y = -a * sin(t);
+  axff = -axff*axff*a*cos(t);
+  ayff = ayff*ayff*a*sin(t);
 }
 
-void SPIRAL(float t, float a, float& x, float& y, float &axff, float &ayff) {//currently testing 3*leminscale_t for more spiral. If spiral goes wrong, change this
+void SPIRAL(float t, float a, float& x, float& y, float &axff, float &ayff) {
   //float sin_t = sin(t);
   //float den = 1 + sin_t * sin_t;
-  x = (a * exp(t/20)*cos(t)) - a;
+  x = a * exp(t/20)*cos(t);
   y = -a * exp(t/20)*sin(t);
-  //axff = a * (-(axff*axff*(1/20)*((1/20) - 20)*exp(t/20)*cos(t)) - (axff*axff*(1/10))*exp(t/20)*sin(t));
-  axff = (a * axff * axff * 9)*((exp(t/20)*cos(t)*(-399/400)) - (1/10)*exp(t/20)*sin(t));
-  ayff = (a * ayff * ayff * 9)*((exp(t/20)*sin(t)*(399/400)) - (1/10)*exp(t/20)*cos(t));
+  axff = a * (-(axff*axff*(1/20)*((1/20) - 20)*exp(t/20)*cos(t)) - (axff*axff*(1/10))*exp(t/20)*sin(t));
+  ayff = -a * (-(ayff*ayff*(1/20)*((1/20) - 20)*exp(t/20)*sin(t)) + (ayff*ayff*(1/10))*exp(t/20)*cos(t));
 }
 
 void ZIGZAG(float t, float a, float& x, float& y, float &axff, float &ayff) {
@@ -137,19 +135,19 @@ void ZIGZAG(float t, float a, float& x, float& y, float &axff, float &ayff) {
 void DIAMOND(float t, float a, float& x, float& y, float &axff, float &ayff) {
   //float sin_t = sin(t);
   //float den = 1 + sin_t * sin_t;
-  x = a * pow(cos(t),3);
-  y = a - a * pow(sin(t),3);
-  axff = -a * axff * 3 * ((-2*axff*sin(t)*sin(t)*cos(t)) + (axff*pow(cos(t),3)));
-  ayff = -a * ayff * 3 * ((-2*ayff*cos(t)*cos(t)*sin(t)) + (axff*pow(sin(t),3)));
+  x = a * pow(cos(t),3) - a;
+  y = -a * pow(sin(t),3);
+  axff = -a * axff * axff * 3 * ((-2*sin(t)*sin(t)*cos(t)) + (pow(cos(t),3)));
+  ayff = -a * ayff * ayff * 3 * ((-2*cos(t)*cos(t)*sin(t)) + (pow(sin(t),3)));
 }
 
 void STAR(float t, float a, float& x, float& y, float &axff, float &ayff) {
   //float sin_t = sin(t);
   //float den = 1 + sin_t * sin_t;
-  x = -(abs(a)+1)*sin(2*t) - a*sin(3*t);
-  y = (abs(a)+1)*cos(2*t) - a*cos(3*t) - (2*a + 1);
-  axff = (abs(a)+1)*4*axff*axff*sin(2*t) + a*9*axff*axff*sin(3*t);
-  ayff = (abs(a)+1)*-4*ayff*ayff*cos(2*t) + a*9*ayff*ayff*cos(3*t);
+  x = -(a+1)*sin(2*t) - a*sin(3*t);
+  y = (a+1)*cos(2*t) - a*cos(3*t) - 1;
+  axff = (abs(a)+4)*4*axff*axff*sin(2*t) + a*9*axff*axff*sin(3*t);
+  ayff = (abs(a)+4)*-4*ayff*ayff*cos(2*t) + a*9*ayff*ayff*cos(3*t);
 }
 
 void STOP(float& x, float& y, float &axff, float &ayff) {
@@ -266,7 +264,7 @@ float* defaultLoop(Encoder& enc1, Encoder& enc2, int check, int mode, float posx
       break;
    case 3  :
       SPIRAL(0.0, leminscate_a, x0, y0, dummy_axff, dummy_ayff);
-      SPIRAL(-3 *leminscate_t_scale * target_period_ms / 1000.0, leminscate_a, last_x, last_y, dummy_axff, dummy_ayff);
+      SPIRAL(-leminscate_t_scale * target_period_ms / 1000.0, leminscate_a, last_x, last_y, dummy_axff, dummy_ayff);
       break;
    case 4  :
       ZIGZAG(0.0, leminscate_a, x0, y0, dummy_axff, dummy_ayff);
@@ -368,7 +366,7 @@ float* defaultLoop(Encoder& enc1, Encoder& enc2, int check, int mode, float posx
       BACKCIRCLE(leminscate_t_scale * t, leminscate_a, x, y, axff, ayff);
       break;
    case 3  :
-      SPIRAL(3 * leminscate_t_scale * t, leminscate_a, x, y, axff, ayff);
+      SPIRAL(leminscate_t_scale * t, leminscate_a, x, y, axff, ayff);
    case 4  :
       ZIGZAG(leminscate_t_scale * t, leminscate_a, x, y, axff, ayff);
       break;
@@ -388,31 +386,18 @@ float* defaultLoop(Encoder& enc1, Encoder& enc2, int check, int mode, float posx
     //accelerations for new XY control
     float ax = update_pid(dt, 2.0, 2.0, 2.0, x, posx, integral_error_pos_x, max_integral_error_pos_x, last_x); //variables might 
     float ay = update_pid(dt, 2.0, 2.0, 2.0, y, posy, integral_error_pos_y, max_integral_error_pos_x, last_y); //need to be updated
-    ax = axff;
-    ay = ayff;
+    ax = ax + axff;
+    ay = ay + ayff;
     //ax should equal update_pid + a feedworward, update move functions to supply a target acceleration (like the ones you have below)
     //and then add those together for ax, ay
-    float axt = -0.6205922498*sin(1.11408460164*t);
-    float ayt = 0.6205922498*cos(1.11408460164*t);
-    Serial.print(axff);
-    Serial.print("\t");
-    Serial.print(axt);
-    Serial.print("\t");
-    Serial.print(ayff);
-    Serial.print("\t");
-    Serial.print(ayt);
-    Serial.println();
+    //ax = -0.6205922498*sin(1.11408460164*t);
+    //ay = 0.6205922498*cos(1.11408460164*t);
   //TEST SOME SAMPLE AX AND AY VALUES
     //ax = double derivative of costx wrt t
     //ay = double derivative of sintx wrt t
     
     
-    float v_measured_left = ((pos_left - last_pos_left)/dt);
-    float v_measured_right = ((pos_right - last_pos_right)/dt);
-    float v_measured = (v_measured_left + v_measured_right)/2;
-    if (v_measured < 0.02)  {
-      v_measured = 0.02;
-    }
+    
 
     //Feedback linearization for new XY control
     float dv = (cos(target_theta)*ax + sin(target_theta)*ay); //might want to swap target_theta to theta and target_v to v_measured
@@ -423,13 +408,17 @@ float* defaultLoop(Encoder& enc1, Encoder& enc2, int check, int mode, float posx
     if (target_v > 2)  {
       target_v = 2;
     }
-
-    
+    float v_measured_left = ((pos_left - last_pos_left)/dt);
+    float v_measured_right = ((pos_right - last_pos_right)/dt);
+    float v_measured = (v_measured_left + v_measured_right)/2;
+    if (v_measured < 0.02)  {
+      v_measured = 0.02;
+    }
     float target_omega = (-1/(target_v))*(sin(target_theta)*ax - cos(target_theta)*ay);
-    //Serial.print(target_v);
-    //Serial.print("\t");
-    //Serial.print(target_omega);
-    //Serial.println();
+    Serial.print(target_v);
+    Serial.print("\t");
+    Serial.print(target_omega);
+    Serial.println();
 
     // Compute the change in heading using the normalized dot product between the current and last velocity vector
     // using this method instead of atan2 allows easy smooth handling of angles outsides of -pi / pi at the cost of
