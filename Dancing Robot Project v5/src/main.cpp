@@ -34,23 +34,29 @@ void loop() {
   float newy = 1.0;
   float intrx = 0.0; //the x and y from the code passed by reference, "internal"
   float intry = 0.0;
+  int mode = 0;
+  int modecount = 0;
   //stays here after initial
   while(true) {
   //rx message from server
   //rx_udp(brain1);
 
   //default circle is 0
-  if (brain1.move_req != last_mode)  {
-    start = 0;
-  }
+  //if (brain1.move_req != last_mode)  {
+  //  start = 0;
+  //}
   if (last_x = x) {
     x = intrx;
   }
   if (last_y = y) {
     y = intry;
   }
+  modecount++;
+  if (modecount % 500 == 0) {
+    mode = (mode + 1) % 2;
+  }
   float* speedangle;//2 variable pointer[0] is v, [1] is w
-  speedangle = defaultLoop(enc1, enc2, start, 1, x, y, newx, newy, intrx, intry);  //brain1.move_req
+  speedangle = defaultLoop(enc1, enc2, start, mode, x, y, newx, newy, intrx, intry);  //brain1.move_req
   start = 1;
   last_x = x;
   last_y = y;

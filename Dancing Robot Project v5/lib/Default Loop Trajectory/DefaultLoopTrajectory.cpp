@@ -98,26 +98,26 @@ float update_pid(float dt, float kp, float ki, float kd,
 void CIRCLE(float t, float a, float& x, float& y, float &axff, float &ayff) {
   //float sin_t = sin(t);
   //float den = 1 + sin_t * sin_t;
-  x = a * cos(t);
-  y = a * sin(t);
+  x = a * sin(t);
+  y = -a * cos(t)+ a;
   //set axff and ayff to the double derivatives of the positional functions
-  axff = -axff*axff*a*cos(t);
-  ayff = -ayff*ayff*a*sin(t);
+  axff = -axff*axff*a*sin(t);
+  ayff = ayff*ayff*a*cos(t);
 }
 
 void BACKCIRCLE(float t, float a, float& x, float& y, float &axff, float &ayff) {
   //float sin_t = sin(t);
   //float den = 1 + sin_t * sin_t;
-  x = a * cos(t);
-  y = -a * sin(t);
-  axff = -axff*axff*a*cos(t);
-  ayff = ayff*ayff*a*sin(t);
+  x = -a * sin(t);
+  y = a * cos(t) - a;
+  axff = axff*axff*a*sin(t);
+  ayff = -ayff*ayff*a*cos(t);
 }
 
 void SPIRAL(float t, float a, float& x, float& y, float &axff, float &ayff) {
   //float sin_t = sin(t);
   //float den = 1 + sin_t * sin_t;
-  x = a * exp(t/20)*cos(t);
+  x = a * exp(t/20)*cos(t) - a;
   y = -a * exp(t/20)*sin(t);
   axff = a * (-(axff*axff*(1/20)*((1/20) - 20)*exp(t/20)*cos(t)) - (axff*axff*(1/10))*exp(t/20)*sin(t));
   ayff = -a * (-(ayff*ayff*(1/20)*((1/20) - 20)*exp(t/20)*sin(t)) + (ayff*ayff*(1/10))*exp(t/20)*cos(t));
@@ -150,9 +150,9 @@ void STAR(float t, float a, float& x, float& y, float &axff, float &ayff) {
   ayff = (abs(a)+4)*-4*ayff*ayff*cos(2*t) + a*9*ayff*ayff*cos(3*t);
 }
 
-void STOP(float& x, float& y, float &axff, float &ayff) {
-  x = x;
-  y = y;
+void STOP(float& x, float& y, float &axff, float &ayff, float posx, float posy) {
+  x = posx;
+  y = posy;
   axff = 0;
   ayff = 0;
 }
@@ -251,8 +251,8 @@ float* defaultLoop(Encoder& enc1, Encoder& enc2, int check, int mode, float posx
 
     switch(mode) {
    case 0  :
-      STOP(x0, y0, dummy_axff, dummy_ayff);
-      STOP(last_x, last_y, dummy_axff, dummy_ayff);
+      STOP(x0, y0, dummy_axff, dummy_ayff, posx, posy);
+      STOP(last_x, last_y, dummy_axff, dummy_ayff, posx, posy);
       break;
    case 1  :
       CIRCLE(0.0, leminscate_a, x0, y0, dummy_axff, dummy_ayff);
@@ -287,6 +287,9 @@ float* defaultLoop(Encoder& enc1, Encoder& enc2, int check, int mode, float posx
     last_dy = (y0 - last_y) / ((float)target_period_ms / 1000.0);
     last_target_v = sqrtf(last_dx * last_dx + last_dy * last_dy);
     target_v = 0.55704230082;
+    if (mode == 0)  {
+      target_v = 0.0;
+    }
     target_theta = 0.0; // This is an integrated quantity
 
   // Motors are controlled by a position PID
@@ -357,7 +360,7 @@ float* defaultLoop(Encoder& enc1, Encoder& enc2, int check, int mode, float posx
     float ayff = leminscate_t_scale;
   switch(mode) {
    case 0  :
-      STOP(x,y, axff, ayff);
+      STOP(x,y, axff, ayff, posx, posy);
       break;
    case 1  :
       CIRCLE(leminscate_t_scale * t, leminscate_a, x, y, axff, ayff);
@@ -386,8 +389,8 @@ float* defaultLoop(Encoder& enc1, Encoder& enc2, int check, int mode, float posx
     //accelerations for new XY control
     float ax = update_pid(dt, 2.0, 2.0, 2.0, x, posx, integral_error_pos_x, max_integral_error_pos_x, last_x); //variables might 
     float ay = update_pid(dt, 2.0, 2.0, 2.0, y, posy, integral_error_pos_y, max_integral_error_pos_x, last_y); //need to be updated
-    ax = ax + axff;
-    ay = ay + ayff;
+    ax = axff;
+    ay = ayff;
     //ax should equal update_pid + a feedworward, update move functions to supply a target acceleration (like the ones you have below)
     //and then add those together for ax, ay
     //ax = -0.6205922498*sin(1.11408460164*t);
@@ -402,9 +405,9 @@ float* defaultLoop(Encoder& enc1, Encoder& enc2, int check, int mode, float posx
     //Feedback linearization for new XY control
     float dv = (cos(target_theta)*ax + sin(target_theta)*ay); //might want to swap target_theta to theta and target_v to v_measured
     target_v = target_v + dv * dt;
-    if (target_v < 0.1) {
-      target_v = 0.1;
-    }
+    //if (target_v < 0.0) {
+      //target_v = 0.0;
+    //}
     if (target_v > 2)  {
       target_v = 2;
     }

@@ -59,7 +59,7 @@ void SPIRAL(float t, float a, float& x, float& y, float &axff, float &ayff);
 void ZIGZAG(float t, float a, float& x, float& y, float &axff, float &ayff);
 void DIAMOND(float t, float a, float& x, float& y, float &axff, float &ayff);
 void STAR(float t, float a, float& x, float& y, float &axff, float &ayff);
-void STOP(float& x, float& y, float &axff, float &ayff);
+void STOP(float& x, float& y, float &axff, float &ayff, float posx, float posy);
 void LINE(float& x, float& y, float& newx, float& newy, float &axff, float &ayff);
 // Signed angle from (x0, y0) to (x1, y1)
 // assumes norms of these quantities are precomputed
