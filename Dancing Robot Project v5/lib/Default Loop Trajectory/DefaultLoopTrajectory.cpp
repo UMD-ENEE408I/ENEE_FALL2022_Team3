@@ -214,20 +214,20 @@ float* defaultLoop(Encoder& enc1, Encoder& enc2, int check, int mode, float posx
   static float ki_left;
   static float kd_left;
   static float kf_left;
-  static float target_pos_left;
-  static float last_pos_left;
-  static float integral_error_pos_left;
+  static float target_pos_left = 0;
+  static float last_pos_left = 0;
+  static float integral_error_pos_left = 0;
   static float max_integral_error_pos_left; // Max effect is the nominal battery voltage
 
   static float kp_right;
   static float ki_right;
   static float kd_right;
   static float kf_right;
-  static float last_pos_right;
-  static float target_pos_right;
-  static float integral_error_pos_right;
+  static float last_pos_right = 0;
+  static float target_pos_right = 0;
+  static float integral_error_pos_right = 0;
   static float max_integral_error_pos_right; // Max effect is the nominal battery voltage
-  static float theta;
+  static float theta = 0.0;
   static float bias_omega;
   static float ktheta;
   static float start_t;
@@ -298,27 +298,27 @@ float* defaultLoop(Encoder& enc1, Encoder& enc2, int check, int mode, float posx
     ki_left = 20.0;
     kd_left = 20.0;
     kf_left = 10.0;
-    target_pos_left  = 0.0;
-    last_pos_left = 0.0;
-    integral_error_pos_left = 0.0;
+    //target_pos_left  = 0.0;
+    //last_pos_left = 0.0;
+    //integral_error_pos_left = 0.0;
     max_integral_error_pos_left = 1.0 * 8.0 / ki_left; // Max effect is the nominal battery voltage
 
     kp_right = 200.0;
     ki_right = 20.0;
     kd_right = 20.0;
     kf_right = 10.0;
-    last_pos_right = 0.0;
-    target_pos_right = 0.0;
-    integral_error_pos_right = 0.0;
+    //last_pos_right = 0.0;
+    //target_pos_right = 0.0;
+    //integral_error_pos_right = 0.0;
     max_integral_error_pos_right = 1.0 * 8.0 / ki_right; // Max effect is the nominal battery voltage
 
     integral_error_pos_x = 0.0;
     max_integral_error_pos_x = 1.0 * 8.0 / 20.0;
-    integral_error_pos_y = 0.0;
+    //integral_error_pos_y = 0.0;
     max_integral_error_pos_y = 1.0 * 8.0 / 20.0;
 
   // IMU Orientation variables
-    theta = 0.0;
+    //theta = 0.0;
     //bias_omega;
   // Gain applied to heading error when offseting target motor velocities
   // currently set to 360 deg/s compensation for 90 degrees of error
@@ -415,10 +415,7 @@ float* defaultLoop(Encoder& enc1, Encoder& enc2, int check, int mode, float posx
       v_measured = 0.02;
     }
     float target_omega = (-1/(target_v))*(sin(target_theta)*ax - cos(target_theta)*ay);
-    Serial.print(target_v);
-    Serial.print("\t");
-    Serial.print(target_omega);
-    Serial.println();
+
 
     if (mode == 0) {
         target_v = 0.0;
@@ -428,7 +425,7 @@ float* defaultLoop(Encoder& enc1, Encoder& enc2, int check, int mode, float posx
     // a slow drift defined by numerical precision
     //float target_omega = signed_angle(last_dx, last_dy, last_target_v, dx, dy, target_v) / dt; //old target omega
     target_theta = target_theta + target_omega * dt;
-
+    
 
     last_x = x;
     last_y = y;
@@ -446,7 +443,18 @@ float* defaultLoop(Encoder& enc1, Encoder& enc2, int check, int mode, float posx
     float target_v_right = requested_v + TURNING_RADIUS_METERS * requested_w;
     target_pos_left  = target_pos_left  + dt * target_v_left;
     target_pos_right = target_pos_right + dt * target_v_right;
-
+    Serial.print(target_v_left);
+    Serial.print("\t");
+    Serial.print(target_v_right);
+    Serial.print("\t");
+    Serial.print(target_pos_left);
+    Serial.print("\t");
+    Serial.print(target_pos_right);
+    Serial.print("\t");
+    Serial.print(mode);
+    Serial.print("\t");
+    Serial.print(dt);
+    Serial.println();
     // Left motor position PID
     float left_voltage = update_pid(dt, kp_left, ki_left, kd_left,
                                     target_pos_left, pos_left,

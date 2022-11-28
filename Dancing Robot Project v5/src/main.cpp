@@ -34,7 +34,7 @@ void loop() {
   float newy = 1.0;
   float intrx = 0.0; //the x and y from the code passed by reference, "internal"
   float intry = 0.0;
-  int mode = 0;
+  int mode = 1;
   int modecount = 0;
   //stays here after initial
   while(true) {
@@ -54,7 +54,12 @@ void loop() {
   modecount++;
   if (modecount % 500 == 0) {
     mode = (mode + 1) % 2;
+    start = 0;
+    Serial.println();
+    Serial.print(start);  //resetting the start command causes a huge pause in the program where things go bad
+    Serial.println();
   }
+  
   float* speedangle;//2 variable pointer[0] is v, [1] is w
   speedangle = defaultLoop(enc1, enc2, start, mode, x, y, newx, newy, intrx, intry);  //brain1.move_req
   start = 1;
