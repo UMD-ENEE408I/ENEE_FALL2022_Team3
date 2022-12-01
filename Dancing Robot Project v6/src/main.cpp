@@ -54,16 +54,18 @@ void loop() {
     y = intry;
   }
   modecount++;
-  if (modecount % 500 == 0) {
-    mode = (mode + 1) % 2;
-    start = 0;
-    Serial.println();
-    Serial.print(start);  //resetting the start command causes a huge pause in the program where things go bad
-    Serial.println();
-  }
+  // if (modecount % 500 == 0) {
+  //   mode = (mode + 1) % 2;
+  //   start = 0;
+  //   newx = x;
+  //   newy = y;
+  //   Serial.println();
+  //   Serial.print(start);  //resetting the start command causes a huge pause in the program where things go bad
+  //   Serial.println();
+  // }
   
   float* speedangle;//2 variable pointer[0] is v, [1] is w
-  speedangle = defaultLoop(enc1, enc2, start, mode, x, y, newx, newy, intrx, intry, bias_omega);  //brain1.move_req
+  speedangle = defaultLoop(enc1, enc2, start, 4, x, y, newx, newy, intrx, intry, bias_omega);  //brain1.move_req
   start = 1;
   last_x = x;
   last_y = y;

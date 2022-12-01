@@ -138,7 +138,7 @@ void DIAMOND(float t, float a, float& x, float& y, float &axff, float &ayff) {
   x = a * pow(cos(t),3) - a;
   y = -a * pow(sin(t),3);
   axff = -a * axff * axff * 3 * ((-2*sin(t)*sin(t)*cos(t)) + (pow(cos(t),3)));
-  ayff = -a * ayff * ayff * 3 * ((-2*cos(t)*cos(t)*sin(t)) + (pow(sin(t),3)));
+  ayff = a * ayff * ayff * 3 * ((-2*cos(t)*cos(t)*sin(t)) + (pow(sin(t),3)));
 }
 
 void STAR(float t, float a, float& x, float& y, float &axff, float &ayff) {
@@ -220,6 +220,11 @@ float* defaultLoop(Encoder& enc1, Encoder& enc2, int check, int mode, float posx
   static float integral_error_pos_left = 0;
   static float max_integral_error_pos_left; // Max effect is the nominal battery voltage
 
+  static float dx;//for setting initial velocity / theta
+  static float dy;
+  static float t;
+  static float dt;
+
   static float kp_right;
   static float ki_right;
   static float kd_right;
@@ -270,6 +275,7 @@ float* defaultLoop(Encoder& enc1, Encoder& enc2, int check, int mode, float posx
    case 4  :
       ZIGZAG(0.0, leminscate_a, x0, y0, dummy_axff, dummy_ayff);
       ZIGZAG(-leminscate_t_scale * target_period_ms / 1000.0, leminscate_a, last_x, last_y, dummy_axff, dummy_ayff);
+      target_v = sqrtf(dx * dx + dy * dy);
       break;
    case 5  :
       DIAMOND(0.0, leminscate_a, x0, y0, dummy_axff, dummy_ayff);
@@ -287,9 +293,7 @@ float* defaultLoop(Encoder& enc1, Encoder& enc2, int check, int mode, float posx
     last_dx = (x0 - last_x) / ((float)target_period_ms / 1000.0);
     last_dy = (y0 - last_y) / ((float)target_period_ms / 1000.0);
     last_target_v = sqrtf(last_dx * last_dx + last_dy * last_dy);
-    target_v = 0.55704230082;
-    theta-= target_theta;
-    target_theta = 0.0; // This is an integrated quantity
+    
 
   // Motors are controlled by a position PID
   // with inputs interpreted in meters and outputs interpreted in volts
@@ -327,15 +331,27 @@ float* defaultLoop(Encoder& enc1, Encoder& enc2, int check, int mode, float posx
     ktheta = (2 * 3.14159) / (90.0 * 3.14159 / 180.0);
     //est_imu_bias(bias_omega, 500);// Could be expanded for more quantities
 
-  // The real "loop()"
-  // time starts from 0
+  
+
+
     start_t = (float)micros() / 1000000.0;
     last_t = -target_period_ms / 1000.0; // Offset by expected looptime to avoid divide by zero
+
+    //this is what we're doing to get initial velocity and theta
+    t = ((float)micros()) / 1000000.0 - start_t;
+    dt = ((float)(t - last_t)); // Calculate time since last update
+    dx = (x0 - last_x)/dt;
+    dy = (y0 - last_y)/dt;
+    target_v = sqrtf(dx * dx + dy * dy);
+    target_theta = atan2f(dy,dx);
+    //target_v = 0.55704230082;
+    theta = target_theta;
   }
+    // The real "loop()"
+    // time starts from 0
     // Get the time elapsed
-    float t = ((float)micros()) / 1000000.0 - start_t;
-    float dt = ((float)(t - last_t)); // Calculate time since last update
-    
+    t = ((float)micros()) / 1000000.0 - start_t;
+    dt = ((float)(t - last_t));
     last_t = t;
 
     // Get the distances the wheels have traveled in meters
@@ -382,8 +398,8 @@ float* defaultLoop(Encoder& enc1, Encoder& enc2, int check, int mode, float posx
       LINE(x,y,newx,newy, axff, ayff);
       break;
 }        
-    float dx = (x - last_x) / dt;
-    float dy = (y - last_y) / dt;
+    dx = (x - last_x) / dt;
+    dy = (y - last_y) / dt;
 
     //accelerations for new XY control
     float ax = update_pid(dt, 2.0, 2.0, 2.0, x, posx, integral_error_pos_x, max_integral_error_pos_x, last_x); //variables might 
@@ -430,7 +446,10 @@ float* defaultLoop(Encoder& enc1, Encoder& enc2, int check, int mode, float posx
         target_omega = 0.0;
         target_theta = theta;
     }
-
+    Serial.print(target_v);
+    Serial.print("\t");
+    Serial.print(target_omega);
+    Serial.println();
     last_x = x;
     last_y = y;
     last_dx = dx;
@@ -447,18 +466,18 @@ float* defaultLoop(Encoder& enc1, Encoder& enc2, int check, int mode, float posx
     float target_v_right = requested_v + TURNING_RADIUS_METERS * requested_w;
     target_pos_left  = target_pos_left  + dt * target_v_left;
     target_pos_right = target_pos_right + dt * target_v_right;
-    Serial.print(target_v_left);
-    Serial.print("\t");
-    Serial.print(target_v_right);
-    Serial.print("\t");
-    Serial.print(target_pos_left);
-    Serial.print("\t");
-    Serial.print(target_pos_right);
-    Serial.print("\t");
-    Serial.print(mode);
-    Serial.print("\t");
-    Serial.print(dt);
-    Serial.println();
+    // Serial.print(target_v_left);
+    // Serial.print("\t");
+    // Serial.print(target_v_right);
+    // Serial.print("\t");
+    // Serial.print(target_pos_left);
+    // Serial.print("\t");
+    // Serial.print(target_pos_right);
+    // Serial.print("\t");
+    // Serial.print(mode);
+    // Serial.print("\t");
+    // Serial.print(dt);
+    // Serial.println();
     // Left motor position PID
     float left_voltage = update_pid(dt, kp_left, ki_left, kd_left,
                                     target_pos_left, pos_left,
