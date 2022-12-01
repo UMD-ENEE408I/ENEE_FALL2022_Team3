@@ -288,7 +288,8 @@ float* defaultLoop(Encoder& enc1, Encoder& enc2, int check, int mode, float posx
     last_dy = (y0 - last_y) / ((float)target_period_ms / 1000.0);
     last_target_v = sqrtf(last_dx * last_dx + last_dy * last_dy);
     target_v = 0.55704230082;
-    //target_theta = 0.0; // This is an integrated quantity
+    theta-= target_theta;
+    target_theta = 0.0; // This is an integrated quantity
 
   // Motors are controlled by a position PID
   // with inputs interpreted in meters and outputs interpreted in volts
@@ -418,16 +419,17 @@ float* defaultLoop(Encoder& enc1, Encoder& enc2, int check, int mode, float posx
     float target_omega = (-1/(target_v))*(sin(target_theta)*ax - cos(target_theta)*ay);
 
 
-    if (mode == 0) {
-        target_v = 0.0;
-        target_omega = 0.0;
-    }
+    
     // Compute the change in heading using the normalized dot product between the current and last velocity vector
     // using this method instead of atan2 allows easy smooth handling of angles outsides of -pi / pi at the cost of
     // a slow drift defined by numerical precision
     //float target_omega = signed_angle(last_dx, last_dy, last_target_v, dx, dy, target_v) / dt; //old target omega
     target_theta = target_theta + target_omega * dt;
-    
+    if (mode == 0) {
+        target_v = 0.0;
+        target_omega = 0.0;
+        target_theta = theta;
+    }
 
     last_x = x;
     last_y = y;
