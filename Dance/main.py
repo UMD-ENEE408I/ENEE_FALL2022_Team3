@@ -5,14 +5,13 @@ from LoadSong import LoadSong
 print("calling load song")
 array, _length = LoadSong()
 
-length = _length+1
-
-count = 0
 
 input("Press Enter to continue...")
 
 _time = time.time()
 true = 1
+length = _length+1
+count = 0
 while(true):
 
 

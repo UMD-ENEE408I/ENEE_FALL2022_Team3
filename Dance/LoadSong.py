@@ -2,7 +2,12 @@ import numpy as np, statistics, math, matplotlib.pyplot as plt, sklearn
 from sklearn.cluster import KMeans
 import librosa, librosa.display
 
-def LoadSong():
+import os.path
+
+
+def noCache():
+
+
 
 
     #x, sr = librosa.load('SafenSound.mp3')
@@ -54,7 +59,7 @@ def LoadSong():
     splitAmount = persecond * 4 # amount of data points to check per second. * how many seconds for each move
     # splitAmount = 200
     totalSplits = math.floor(len(y)/splitAmount)
-    print(totalSplits)
+    #print(totalSplits)
     count = 0
     total = 0
     counter = 0
@@ -105,6 +110,36 @@ def LoadSong():
             _d[1,count] = test[n]
             _d[0,count] = n*hop_length/sr
 
-    print(_d)
+    #print(_d)
+
+    createCache(_d,switches)
 
     return _d, switches
+
+
+def createCache(array,switches):
+    print("create the caches ")
+    np.save("CacheArray.npy",array,allow_pickle=True)
+    np.save("CacheSwitches.npy",switches,allow_pickle=True)
+    print("created the caches")
+
+
+
+def LoadSong():
+    #check cache
+    file_exists = os.path.exists('CacheArray.txt')
+    if(file_exists):
+        print("found cache")
+        array = np.load("CacheArray.npy",allow_pickle=True)
+        length = np.load("CacheSwitches.npy",allow_pickle=True)
+        
+
+
+    #cache does not exist
+    if(not file_exists):
+        print("no cache, must load song")
+        array, length = noCache()
+
+    print("Song loaded")
+    return array, length
+
