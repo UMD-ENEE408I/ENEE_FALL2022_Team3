@@ -126,10 +126,10 @@ void SPIRAL(float t, float a, float& x, float& y, float &axff, float &ayff) {
 void ZIGZAG(float t, float a, float& x, float& y, float &axff, float &ayff) {
   //float sin_t = sin(t);
   //float den = 1 + sin_t * sin_t;
-  x = t;
-  y = a*sin(t);
+  x = t/2;
+  y = a*sin(3*t);
   axff = 0;
-  ayff = -ayff*ayff*a*sin(t);
+  ayff = -9*ayff*ayff*a*sin(3*t);
 }
 
 void DIAMOND(float t, float a, float& x, float& y, float &axff, float &ayff) {
@@ -338,10 +338,9 @@ float* defaultLoop(Encoder& enc1, Encoder& enc2, int check, int mode, float posx
     last_t = -target_period_ms / 1000.0; // Offset by expected looptime to avoid divide by zero
 
     //this is what we're doing to get initial velocity and theta
-    t = ((float)micros()) / 1000000.0 - start_t;
-    dt = ((float)(t - last_t)); // Calculate time since last update
-    dx = (x0 - last_x)/dt;
-    dy = (y0 - last_y)/dt;
+    
+    dx = -(x0 - last_x)/last_t;
+    dy = -(y0 - last_y)/last_t;
     target_v = sqrtf(dx * dx + dy * dy);
     target_theta = atan2f(dy,dx);
     //target_v = 0.55704230082;
