@@ -7,12 +7,9 @@ import os.path
 
 def noCache():
 
-
-
-
-    #x, sr = librosa.load('SafenSound.mp3')
     print("librosa load")
-    x, sr = librosa.load('PartyRock.mp3')
+    x, sr = librosa.load('SafenSound.mp3')
+    #x, sr = librosa.load('PartyRock.mp3')
 
     filter_length=2048
     #hop_length = int(sr * .01) #creates a hop length of 10ms
@@ -40,7 +37,7 @@ def noCache():
     y = np.arange(len(t))
     y = y * hop_length/sr
 
-
+    # finds how many data points are used persecond
     persecond = 0
     for i in range (0,len(y)):
         if(y[i]<1):
@@ -51,6 +48,7 @@ def noCache():
     print("smoothing")
     test = t.copy()
     findmedian = []
+    #print("Per second " + str(persecond))
 
     yes = 1
     # amount = 50 #amuont of concurent things to check
@@ -127,17 +125,13 @@ def createCache(array,switches):
 
 def LoadSong():
     #check cache
-    file_exists = os.path.exists('CacheArray.txt')
+    file_exists = os.path.exists('CacheArray.npy')
     if(file_exists):
         print("found cache")
         array = np.load("CacheArray.npy",allow_pickle=True)
         length = np.load("CacheSwitches.npy",allow_pickle=True)
-        
-
-
-    #cache does not exist
-    if(not file_exists):
-        print("no cache, must load song")
+    else:
+        print("no cache, must process song")
         array, length = noCache()
 
     print("Song loaded")
