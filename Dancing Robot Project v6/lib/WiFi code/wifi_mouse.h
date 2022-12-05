@@ -6,20 +6,23 @@
 
 const char* ssid;
 const char* password;
-const char* udpAddress = "192.168.105.101";
+const char* udpAddress = "192.168.83.101";
 const int udpPort = 3333;
 WiFiUDP udp;
 
 //struct for udp packets
 struct mouse{
   
-  float heading_meas;
-  float velocity_meas;
+  float x;
+  float y;
+  float heading;
+  int move;
   } mouse;
 
 struct brain{
-  float heading_req;
-  float velocity_req;
+  float meas_x;
+  float meas_y;
+  float heading_meas;
   int move_req;
 } brain;
 
