@@ -67,14 +67,13 @@ void loop() {
     Serial.print(start);  //resetting the start command causes a huge pause in the program where things go bad
     Serial.println();
   }
-  
   float* speedangle;//2 variable pointer[0] is v, [1] is w
   speedangle = defaultLoop(enc1, enc2, start, mode, x, y, newx, newy, intrx, intry, bias_omega);  //brain1.move_req
   start = 1;
   last_x = x;
   last_y = y;
-  mouse1.heading_meas = speedangle[1];
-  mouse1.velocity_meas = speedangle[0];
+  //mouse1.heading_meas = speedangle[1];
+  //mouse1.velocity_meas = speedangle[0];
   last_mode = brain1.move_req;
 
   //send_udp(mouse1);

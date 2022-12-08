@@ -99,7 +99,7 @@ void CIRCLE(float t, float a, float& x, float& y, float &axff, float &ayff) { //
   //float sin_t = sin(t);
   //float den = 1 + sin_t * sin_t;
   x = a * sin(t);
-  y = -a * cos(t)+ a;
+  y = -a * cos(t) + a;
   //set axff and ayff to the double derivatives of the positional functions
   axff = -axff*axff*a*sin(t);
   ayff = ayff*ayff*a*cos(t);
@@ -202,7 +202,7 @@ float* defaultLoop(Encoder& enc1, Encoder& enc2, int check, int mode, float posx
 , float &BiOm) {
   // Create the encoder objects after the motor has
   // stopped, else some sort exception is triggered
-  static int spincount = 0;
+  static int spincount = 0; //used in spin function to ensure it goes for a set amount of time
   static int target_period_ms = 2;
   static float leminscate_a = 0.5;
   static float leminscate_t_scale = 1.11408460164;
@@ -247,7 +247,8 @@ float* defaultLoop(Encoder& enc1, Encoder& enc2, int check, int mode, float posx
   static float integral_error_pos_y;      //for new XY control PID
   static float max_integral_error_pos_y;  //for new XY control PID
   static float target_v;
-  static float dummy_axff, dummy_ayff;    //unused variables
+  static float dummy_axff, dummy_ayff;    //unused variables passed into initialization trajectories
+  static float start_theta; //saved theta position, robot will reset to this at the end of a move
 
   if (check == 0) {
   // Loop period
@@ -335,6 +336,7 @@ float* defaultLoop(Encoder& enc1, Encoder& enc2, int check, int mode, float posx
 
   
 
+  
 
     start_t = (float)micros() / 1000000.0;
     last_t = -target_period_ms / 1000.0; // Offset by expected looptime to avoid divide by zero
@@ -347,6 +349,12 @@ float* defaultLoop(Encoder& enc1, Encoder& enc2, int check, int mode, float posx
     target_theta = atan2f(dy,dx);
     //target_v = 0.55704230082;
     theta = target_theta;
+    // if (spincount > 0)  {
+    //   for (float i = 0; i < (theta - start_theta); i+=(6 * 3.14159265)) {
+    //     theta = start_theta + i;
+    //   }
+    // }
+    start_theta = theta;
     spincount = 0;
   }
     // The real "loop()"
@@ -446,11 +454,11 @@ float* defaultLoop(Encoder& enc1, Encoder& enc2, int check, int mode, float posx
     
     if (mode == 8)  { //Behold, the hidden dance move - SPINNING
       target_v = 0.0;
-      target_omega = 2.0;
-      target_theta = theta + 6;
+      //target_omega = 2.0;
+      target_theta = theta + (2 * 3.14159265);  //Just keep moving the theta up
       spincount++;
-      if (spincount > 100) {
-        mode = 0;
+      if (spincount > 200) {
+        target_theta = start_theta +  (2 * 3.14159265); //set it back to an internal theta, should end spinning in the position it started in.
       }
     }
     if (mode == 0) {
