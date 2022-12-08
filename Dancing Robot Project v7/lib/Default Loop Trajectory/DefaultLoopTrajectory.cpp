@@ -95,7 +95,7 @@ float update_pid(float dt, float kp, float ki, float kd,
 
 // a smooth and interesting trajectory
 // https://en.wikipedia.org/wiki/Lemniscate_of_Bernoulli
-void CIRCLE(float t, float a, float& x, float& y, float &axff, float &ayff) {
+void CIRCLE(float t, float a, float& x, float& y, float &axff, float &ayff) { //WORKING
   //float sin_t = sin(t);
   //float den = 1 + sin_t * sin_t;
   x = a * sin(t);
@@ -105,7 +105,7 @@ void CIRCLE(float t, float a, float& x, float& y, float &axff, float &ayff) {
   ayff = ayff*ayff*a*cos(t);
 }
 
-void BACKCIRCLE(float t, float a, float& x, float& y, float &axff, float &ayff) {
+void BACKCIRCLE(float t, float a, float& x, float& y, float &axff, float &ayff) { //WORKING
   //float sin_t = sin(t);
   //float den = 1 + sin_t * sin_t;
   x = -a * sin(t);
@@ -114,7 +114,7 @@ void BACKCIRCLE(float t, float a, float& x, float& y, float &axff, float &ayff) 
   ayff = -ayff*ayff*a*cos(t);
 }
 
-void SPIRAL(float t, float a, float& x, float& y, float &axff, float &ayff) {
+void SPIRAL(float t, float a, float& x, float& y, float &axff, float &ayff) { //NOT WORKING
   //float sin_t = sin(t);
   //float den = 1 + sin_t * sin_t;
   x = a * exp(t/20)*cos(t) - a;
@@ -123,7 +123,7 @@ void SPIRAL(float t, float a, float& x, float& y, float &axff, float &ayff) {
   ayff = -a * (-(ayff*ayff*(1/20)*((1/20) - 20)*exp(t/20)*sin(t)) + (ayff*ayff*(1/10))*exp(t/20)*cos(t));
 }
 
-void ZIGZAG(float t, float a, float& x, float& y, float &axff, float &ayff) {
+void ZIGZAG(float t, float a, float& x, float& y, float &axff, float &ayff) { //WORKING
   //float sin_t = sin(t);
   //float den = 1 + sin_t * sin_t;
   x = t/2;
@@ -132,7 +132,7 @@ void ZIGZAG(float t, float a, float& x, float& y, float &axff, float &ayff) {
   ayff = -9*ayff*ayff*a*sin(3*t);
 }
 
-void DIAMOND(float t, float a, float& x, float& y, float &axff, float &ayff) {
+void DIAMOND(float t, float a, float& x, float& y, float &axff, float &ayff) { //NOT WORKING
   //float sin_t = sin(t);
   //float den = 1 + sin_t * sin_t;
   x = a * pow(cos(t),3) - a;
@@ -141,7 +141,7 @@ void DIAMOND(float t, float a, float& x, float& y, float &axff, float &ayff) {
   ayff = a * ayff * ayff * 3 * ((-2*cos(t)*cos(t)*sin(t)) + (pow(sin(t),3)));
 }
 
-void STAR(float t, float a, float& x, float& y, float &axff, float &ayff) {
+void STAR(float t, float a, float& x, float& y, float &axff, float &ayff) { //NOT WORKING
   //float sin_t = sin(t);
   //float den = 1 + sin_t * sin_t;
   x = -(a+1)*sin(2*t) - a*sin(3*t);
@@ -150,14 +150,14 @@ void STAR(float t, float a, float& x, float& y, float &axff, float &ayff) {
   ayff = (abs(a)+1)*-4*ayff*ayff*cos(2*t) + a*9*ayff*ayff*cos(3*t);
 }
 
-void STOP(float& x, float& y, float &axff, float &ayff, float posx, float posy) {
+void STOP(float& x, float& y, float &axff, float &ayff, float posx, float posy) { //WORKING* with external code (search "mode == 0")
   x = posx;
   y = posy;
   axff = 0;
   ayff = 0;
 }
 
-void LINE(float& x, float& y, float& newx, float& newy, float &axff, float &ayff) {
+void LINE(float& x, float& y, float& newx, float& newy, float &axff, float &ayff) { //NOT WORKING, it's supposed to move to a requested location from an external argument.
   x = newx;
   y = newy;
   axff = 0;
