@@ -133,9 +133,16 @@ while(True):
     move_req = np.int_(arrayOfSong[1,count])
     move_req = move_req.tolist()
     #temporary
-    if move_req == 2:
-        move_req = 4
-    
+    if move_req == 3:
+        move_req = 0
+    if move_req == 4:
+        move_req = 1
+    if move_req == 5:
+        move_req = 2
+    if move_req == 0:
+        move_req = 1
+    if move_req == 1:
+        move_req = 1                    
     # Updates Dance Move
     if(time.time()-_time > arrayOfSong[0,count]):
         count +=1
@@ -143,6 +150,7 @@ while(True):
 
         if count>length-1:
             print("routine complete \n")
+            move_req = 0
             continue
             #Can end the dance here
         

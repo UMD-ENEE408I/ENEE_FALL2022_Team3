@@ -28,7 +28,7 @@ def noCache():
 
     ## start
     print("clustering")
-    clusters = 3
+    clusters = 6
     kmeans = KMeans(n_clusters=clusters, random_state=0).fit(S)
     t = kmeans.labels_
 
