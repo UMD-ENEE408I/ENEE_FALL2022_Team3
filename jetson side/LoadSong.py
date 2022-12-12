@@ -87,15 +87,10 @@ def noCache():
     print(amount)
 
 
-    #finds the two most common
     most_common = max(amount)
     most_common_index = amount.index(most_common)
-    #print(most_common)
-    #print(most_common_index)
 
     without_most_common = amount.copy()
-    #print(without_most_common)
-    #print('test')
     without_most_common.remove(most_common)
     #print(without_most_common)
 
@@ -105,23 +100,26 @@ def noCache():
     #print(most_common_index)
     #print(new_most_common_index)
 
+    # will make the most used move our best move
+    best_move = 1
+    second_best_move = 2
+
     new = t.copy()
     for i in range(0, totalSplits): #goes through it all
         for p in range(0+splitAmount*i, splitAmount+splitAmount*i):
             if test[p] == most_common_index:
-                new[p] = 1 #our best and most basic move
+                new[p] = best_move #our best and most basic move
             if test[p] == new_most_common_index:
-                new[p] = 2 #our second best and most basic move
-            if test[p] == 1: #swapping with most common
+                new[p] = second_best_move #our second best and most basic move
+            if test[p] == best_move: #swapping with most common
                 new[p] = most_common_index
-            if test[p] == 2:
+            if test[p] == second_best_move:
                 new[p] = new_most_common_index
-            
-        #test[p] = median
+
 
     #swap the next popular ones to our best ones
 
-    #will try and make a move happen every 4 seconds
+    #will try and make a move happen every num seconds
     last_value = new[0]
     count = 0
     print("total splits " + str(totalSplits))
@@ -149,8 +147,6 @@ def noCache():
                     new[n] = new_int
             count = 0
 
-                
-        #print(count)
 
 
 
